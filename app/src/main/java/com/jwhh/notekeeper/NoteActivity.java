@@ -1,19 +1,24 @@
 package com.jwhh.notekeeper;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.TextView;
-
 import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
+    public static final String NOTE_INFO = "com.jwhh.notekeeper.NOTE_INFO";
+    private NoteInfo mNote;
+    private boolean mIsNewNote;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,22 +29,37 @@ public class NoteActivity extends AppCompatActivity {
 
         setContentView(R.layout.fragment_first);
         Spinner spinnerCourses = findViewById(R.id.spinner1);
-        TextView text = findViewById(R.id.text1);
 
-
-
-        DataManager dm = DataManager.getInstance();
-        List<CourseInfo> courses =  dm.getCourses();
+        List<CourseInfo> courses =  DataManager.getInstance().getCourses();
         ArrayAdapter<CourseInfo> adapterCourses =
                 new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, courses);
         adapterCourses.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCourses.setAdapter(adapterCourses);
 
+        readDisplayValues();
 
 
+        EditText textNoteTitle = findViewById(R.id.text_note_title);
+        EditText textNoteText = findViewById(R.id.text_note_text);
+
+        if (!mIsNewNote)
+        displayNotes(spinnerCourses,textNoteTitle,textNoteText);
 
 
+    }
 
+    private void displayNotes(Spinner spinnerCourses, EditText textNoteTitle, EditText textNoteText) {
+        List<CourseInfo> courses = DataManager.getInstance().getCourses();
+        int courseindex = courses.indexOf(mNote.getCourse());
+        spinnerCourses.setSelection(courseindex);
+        textNoteTitle.setText(mNote.getTitle());
+        textNoteText.setText(mNote.getText());
+    }
+
+    private void readDisplayValues() {
+        Intent intent = getIntent();
+        mNote = intent.getParcelableExtra(NOTE_INFO);
+        mIsNewNote = mNote == null;
     }
 
     @Override
